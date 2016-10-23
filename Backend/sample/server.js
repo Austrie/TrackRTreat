@@ -5,7 +5,7 @@
 
 // call the packages we need
 var schedule = require('node-schedule');
-var Bears     = require('./app/models/users');
+var Bears     = require('./app/models/bears');
 
 function randomString(length, chars) {
     var result = '';
@@ -27,6 +27,7 @@ var Entry = new mongoose.Schema({
 
 
 mongoose.connect('mongodb://localhost:27017/'); // connect to our database
+var db = mongoose.connection;
 var express    = require('express'); 		// call express
 var app        = express(); 				// define our app using express
 var bodyParser = require('body-parser');
@@ -46,46 +47,49 @@ var router = express.Router(); 				// get an instance of the express Router
 
 function stripAlphaChars(source) {
     var out = source.replace(/[^0-9]/g, '');
-    
+
     return out;
 }
-    
+
 router.route('/offers')
 
 	// create a bear (accessed at POST http://localhost:8080/api/bears)
 	.post(function(req, res) {
-		
+    console.log("made it through, capn");
 		var bear = new Bears();
-		var url = req.param("imageUrl");
 		//console.log(req.body);
 		bear.imageUrl = req.param("imageUrl");
-		bear.businessName = req.param("businessName");
 		bear.date = req.param("date");
-		bear.what = req.param("what");
-		bear.claimDeets = req.param("claimDeets");
-		bear.location = req.param("location");
-		bear.payout = req.param("payout");
-		bear.subjectOffer = req.param("subjectOffer");
-		bear.category = req.param("category");
 		// save the bear and check for errors
 		bear.save(function(err) {
-			if (err)
+			if (err) {
 				res.send(err);
-
+      }
+      console.log("Saved: ", bear);
 			res.json({ message: 'Bear created!' });
 		});
-		
 	})
 		.get(function(req, res) {
-		Bear.find({}).sort({$natural:-1}).execFind(function(err,bears){
-
-			if (err)
-				res.send(err);
-
-			res.json(bears);
-		});
+		    var query = Bears.findOne({'date' : 'date'});
+        // console.log(query)
+        query.select('imageUrl');
+        query.exec(function(err, bear){
+          if (err){
+              console.log("Couldn't find the bear");
+              res.send(err);
+          }
+          else if (bear === null) {
+            res.json({message: "no bear found :-("});
+          }
+          else
+            res.json({message: bear.imageUrl})
+        })
 	});
-	
+
+  router.route('/testcase')
+      .get(function(req, res) {
+      res.json( { message : "This is a test of the early warning system"});
+});
 // REGISTER OUR ROUTES -------------------------------
 // all of our routes will be prefixed with /api
 app.use('/api', router);
@@ -107,10 +111,13 @@ router.use(function(req, res, next) {
 
 // test route to make sure everything is working (accessed at GET http://localhost:8080/api)
 router.get('/', function(req, res) {
-	res.json({ message: 'There is nothing here!' });	
+	res.json({ message: 'There is nothing here!' });
+});
+router.post('/', function(req,res) {
+    res.json({ message: "This is a post!"});
 });
 router.use('/', function(req, res) {
-	res.json({ message: 'You have no business here. Go away.' });	
+	res.json({ message: 'You have no business here. Go away.' });
 });
 
 process.on('uncaughtException', function (err) {
