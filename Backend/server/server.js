@@ -52,7 +52,7 @@ router.route('/newloc')
               res.json({message: "No such location found"});
             }
             else
-              res.json({message: loc})
+              res.json({loc})
             })
     });
     //Compute new score and increment count upon checkin review
@@ -65,7 +65,7 @@ router.route('/checkin')
               console.log("Err: Could not find loc for checkin");
               res.send(err);
             }
-            else if (loc === null) {
+            else if (loc == null) {
               res.json({message: "No such loc found"});
             }
             else {

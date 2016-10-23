@@ -28,6 +28,8 @@ IP MUST BE MANUALLY HARDCODED BEFORE RUNTIME
 AS LONG AS WE ARE LOCALHOST BASED
 
 Unimplemented Features:
+  res.json        --Associative Array
+  Server Side Calculations
   Routing         --MapQuest Route & Optimized Route APIs
                   --For User selected list of locs,
                   --Maximal weight,
