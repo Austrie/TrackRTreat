@@ -20,10 +20,10 @@ var port = process.env.PORT || 8080; //Setting port
 //We're doing a thing?
 var router = express.Router();      // Get instance of express Router
 
-router.route('/points')
+router.route('/newloc')
     //create a loc
     .post(function(req, res) {
-        console.log("Did we make it?");
+        //console.log("Did we make it?");
           var loc = new Locs();
           loc.submitter = req.param("userhash");
           loc.score = req.param("score");
@@ -39,6 +39,7 @@ router.route('/points')
             res.json({message:'Location created'});
           });
     })
+    // Return all locs
     .get(function(req,res) {
           var query = Locs.find();
           query.select();
@@ -54,7 +55,33 @@ router.route('/points')
               res.json({message: loc})
             })
     });
-
+    //Compute new score and increment count upon checkin review
+router.route('/checkin')
+    .post(function(req,res) {
+          var query = Locs.findOne(req.param("ObjectID"));
+          query.select();
+          query.exec(function(err, loc){
+            if (err){
+              console.log("Err: Could not find loc for checkin");
+              res.send(err);
+            }
+            else if (loc === null) {
+              res.json({message: "No such loc found"});
+            }
+            else {
+              var tmpscore = Number(req.param("score"));
+              loc.score = tmpscore + loc.score;
+              loc.count = loc.count + 1;
+              loc.save(function(err) {
+                if (err) {
+                    res.send(err);
+                }
+                console.log("Updated: ", loc);
+                res.json({message:'Location updated'});
+              });
+            }
+          })
+  });
 //Register routes, all routes are prefixed with /api
 app.use('/api',router);
 
