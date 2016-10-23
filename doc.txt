@@ -1,0 +1,50 @@
+Locs(
+    --All entries in MongoDB have an ObjectID
+   submitter:String,  --Identifier for user who submitted
+   score:Number,      --Sum of all ratings
+   count:Number,      --Number of times rated
+   x:String,          --Latitude
+   y:String           --Longitude
+   )
+
+SERVER CAPABILITIES:
+  /newloc
+    POST: --Add new location
+      send (userhash,score,x,y) --Count is hard coded to 1
+      Creates new loc with values
+      Responds with error or success
+
+    GET: --Get all locations
+      responds with all locations found
+
+  /checkin
+    POST: --Update database from mobile
+      send (ObjectID,score) --ID and rating
+      Load entry with ID
+      Add rating to score --Cast rating to Number
+      Increment count
+
+IP MUST BE MANUALLY HARDCODED BEFORE RUNTIME
+AS LONG AS WE ARE LOCALHOST BASED
+
+Unimplemented Features:
+  Routing         --MapQuest Route & Optimized Route APIs
+                  --For User selected list of locs,
+                  --Maximal weight,
+                  --Minimal spanning,
+                  --or other
+
+  Events          --Preapproved events,
+                  --Gives time, details, ratings and reviews
+                  --Used with Routing
+
+  Profiles - User(
+      userhash:String, --Identifier hash.
+      points:Number --Gamification for adding and visiting
+      submitted:Number --Tally of added locs for achievements
+      )
+
+  Achievements    --Gamification to promote continued usage/longterm goals
+                  --Pumking, Candy Creeper, etc.
+
+  Tricker Status  --Received from submissions getting bad ratings
