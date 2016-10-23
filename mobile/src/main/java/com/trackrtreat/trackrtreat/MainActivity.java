@@ -1,8 +1,13 @@
 package com.trackrtreat.trackrtreat;
 
 import android.content.DialogInterface;
+import android.support.v4.util.LongSparseArray;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.provider.Settings;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -18,49 +23,75 @@ import android.view.ViewGroup;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 
+import com.mapbox.mapboxsdk.annotations.Annotation;
+import com.mapbox.mapboxsdk.annotations.BaseMarkerOptions;
+import com.mapbox.mapboxsdk.annotations.Icon;
+import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapquest.mapping.maps.OnMapReadyCallback;
 import com.mapquest.mapping.maps.MapboxMap;
 import com.mapquest.mapping.maps.MapView;
+import com.trackrtreat.trackrtreat.EditedMapQuestFiles.Icon2;
+import com.trackrtreat.trackrtreat.EditedMapQuestFiles.MapboxMap2;
+
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 
 public class MainActivity extends AppCompatActivity {
+//        private LongSparseArray<Annotation> mAnnotations;
         private MapboxMap mMapboxMap;
         private MapView mMapView;
 
-        PopupWindow pWindow;
-        LayoutInflater layoutInflator;
-        ViewGroup container;
-        CoordinatorLayout rLayout;
-        GPSTracker gpsTracker;
-        double lat, lon;
+        private GPSTracker gpsTracker;
+        private double lat = 33.7489950;
+        private double lon = -84.3879820;
+        private MarkerOptions moMyLocation;
+        private final LatLng MY_LOCATION = new LatLng(33.756351, -84.389144);
+        private Bitmap bmp;
+        Icon2 icon;
+        private LongSparseArray<Annotation> mAnnotations;
+
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
 
             setContentView(R.layout.activity_main);
-
             mMapView = (MapView) findViewById(R.id.mapquestMapView);
             mMapView.onCreate(savedInstanceState);
-            
-            gpsTracker = new GPSTracker(this);
 
-            if(!gpsTracker.canGetLocation()) {
-                gpsTracker.showSettingsAlert();
-            } else {
-                gpsTracker.getLocation();
-                lat = gpsTracker.getLatitude();
-                lon = gpsTracker.getLongitude();
-            }
+            //GPS code to check for user location
+//            gpsTracker = new GPSTracker(this);
+//
+//            if(!gpsTracker.canGetLocation()) {
+//                gpsTracker.showSettingsAlert();
+//            } else {
+//                gpsTracker.getLocation();
+//                lat = gpsTracker.getLatitude();
+//                lon = gpsTracker.getLongitude();
+//            }
+//            bmp = BitmapFactory.decodeResource(this.getResources(), R.drawable.my_location_icon);
+//            icon = new Icon2("my_location_icon", bmp);
 
             mMapView.getMapAsync(new OnMapReadyCallback() {
                 @Override
                 public void onMapReady(MapboxMap mapboxMap) {
-                    mMapboxMap = mapboxMap;
-                    mMapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lon), 11));
-                    addMarker(mMapboxMap);
+                    mMapboxMap = (MapboxMap2) mapboxMap;
+                    mMapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(MY_LOCATION, 11));
+                    MarkerOptions markerOptions = new MarkerOptions();
+                    markerOptions.position(new LatLng(lat, lon));
+                    markerOptions.title("Current Location");
+                    markerOptions.snippet("This is your current location");
+//                    try {
+//                        Field field = mMapboxMap.getClass().getDeclaredField("mAnnotation");
+//                        field.setAccessible(true);
+//                        mAnnotations = unpack(field);
+//                    } catch(Exception e) {
+//
+//                    }
+                    mMapboxMap.addMarker(markerOptions);
                 }
             });
 
@@ -108,6 +139,29 @@ public class MainActivity extends AppCompatActivity {
             markerOptions.position(new LatLng(lat, lon));
             markerOptions.title("Current Location");
             markerOptions.snippet("This is your current location");
+            markerOptions.icon(null);
             mapBoxMap.addMarker(markerOptions);
         }
+
+    private void addMarkers(MapboxMap mapBoxMap) {
+        MarkerOptions markerOptions = new MarkerOptions();
+        for(int i = 0; i <  5; i++) {
+            markerOptions.position(new LatLng(lat, lon));
+            markerOptions.title("Location " + i );
+            markerOptions.snippet("This is candy house" + i);
+            mapBoxMap.addMarker(markerOptions);
+            lat = (lat * 1.1);
+            lon = (lon * 1.1);
+        }
+    }
+
+    public static Object[] unpack(Field array) {
+        Object[] array2 = new Object[Array.getLength(array)];
+        for (int i = 0; i < array2.length; i++) {
+            array2[i] = Array.get(array, i);
+            return array2;
+        }
+        return null;
+    }
+
     }
