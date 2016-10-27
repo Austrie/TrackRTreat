@@ -3,4 +3,4 @@ trackrtreat.net
 user: trackrtreatnet1
 password: Track-Treat2016
 
-terrible photos: https://www.facebook.com/PantherHackers/info/?ref=page_internal
+terrible photos: https://www.facebook.com/PantherHackers/
